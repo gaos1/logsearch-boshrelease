@@ -1,0 +1,94 @@
+resources:
+  - name: "repo-master"
+    type: "git"
+    source:
+      uri: {{repo-master-uri}}
+      branch: {{repo-master-branch}}
+
+  - name: "final-release"
+    type: s3
+    source:
+      bucket: {{release-bucket}}
+      regexp: "logsearch-(.*).tgz"
+      access_key_id: {{release-access-key}}
+      secret_access_key: {{release-secret-key}}
+  - name: "final-release-version"
+    type: semver
+    source:
+      bucket: {{release-bucket}}
+      key: "releases/version"
+      access_key_id: {{release-access-key}}
+      secret_access_key: {{release-secret-key}}
+
+  - name: "dev-release"
+    type: s3
+    source:
+      bucket: {{release-bucket}}
+      regexp: "logsearch-(.*).tgz"
+      access_key_id: {{release-access-key}}
+      secret_access_key: {{release-secret-key}}
+  - name: "dev-release-version"
+    type: semver
+    source:
+      bucket: {{release-bucket}}
+      key: "dev_releases/version"
+      access_key_id: {{release-access-key}}
+      secret_access_key: {{release-secret-key}}
+
+  - name: sanity-test-deployment
+    type: bosh-deployment
+    source:
+      target: {{test-director-target}}
+      username: {{test-director-username}}
+      password: {{test-director-password}}
+      deployment: "sanity-test"
+      ignore_ssl: yes
+
+  #
+  # bosh.io
+  #
+
+  - name: "bosh-stemcell-aws"
+    type: "bosh-io-stemcell"
+    source:
+      name: "bosh-aws-xen-hvm-ubuntu-trusty-go_agent"
+
+jobs:
+  - name: "publish-dev-release"
+    public: true
+    plan:
+      - aggregate:
+          - get: "repo"
+            resource: "repo-master"
+            trigger: true
+          - get: "dev-release-version"
+            params:
+              pre: "dev"
+      - task: "create-dev-release"
+        file: "repo/ci/dev-release.yml"
+      - put: "dev-release"
+        params:
+          from: "repo/dev_releases/logsearch/logsearch-(.+).tgz"
+          to: "dev_releases/"
+      - put: "dev-release-version"
+        params:
+          file: "dev-release-version/number"
+  - name: "deploy-sanity-test"
+    public: true
+    plan:
+      - get: "dev-release-version"
+        trigger: true
+      - aggregate:
+          - get: "dev-release"
+          - get: "bosh-stemcell-aws"
+          - get: "repo-master"
+            passed:
+              - "publish-dev-release"
+      - put: "sanity-test-deployment"
+        params:
+          manifest: "repo-master/ci/deployments/sanity-test-aws.yml"
+          stemcells:
+            - "bosh-stemcell-aws/*.tgz"
+          releases:
+            - "dev-release/*.tgz"
+      
