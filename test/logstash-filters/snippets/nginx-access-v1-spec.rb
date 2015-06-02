@@ -1,8 +1,9 @@
-require 'test_utils'
+require 'spec_helper'
 require 'logstash/filters/grok'
+require 'logstash/filters/date'
+require 'logstash/filters/mutate'
 
 describe LogStash::Filters::Grok do
-  extend LogStash::RSpec
 
   describe 'logsearch/nginx/access/v1' do
     config 'filter {' + File.read("#{File.dirname(__FILE__)}/../../../src/logstash-filters/snippets/nginx-access-v1.conf") + '}'

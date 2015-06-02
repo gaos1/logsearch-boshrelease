@@ -10,5 +10,5 @@ You might want to update your experimental concourse pipeline...
 
 You might want to serve your local repository while tweaking scripts...
 
-    $ git daemon --base-path=../ -v --listen=192.168.100.100 --port=9191 --export-all
-    $ echo 'git-master-uri: "git://192.168.100.100:9191/"' >> config/private-main.yml
+    $ git daemon --base-path=../ -v --listen=172.23.240.4 --port=9191 --export-all
+    $ echo 'git-master-uri: "git://172.23.240.4:9191/"' >> config/private-main.yml

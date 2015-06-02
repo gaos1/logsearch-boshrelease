@@ -5,11 +5,19 @@
       "Effect": "Allow",
       "Action": [
         "s3:GetObject",
-        "s3:ListBucket",
         "s3:PutObject"
       ],
       "Resource": [
         "arn:aws:s3:::logsearch-boshrelease/*"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::logsearch-boshrelease"
       ]
     }
   ]

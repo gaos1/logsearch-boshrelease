@@ -5,6 +5,6 @@ release-bucket: "logsearch-boshrelease"
 release-access-key: ~
 release-secret-key: ~
 
-test-director-target: "https://192.168.170.5:25555"
+test-director-target: "https://192.168.170.68:25555"
 test-director-username: "admin"
 test-director-password: "admin"

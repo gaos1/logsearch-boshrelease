@@ -2,7 +2,7 @@
 platform: "linux"
 image: "docker:///concourse/concourse-ci"
 inputs:
+  - name: "release"
   - name: "repo"
-  - name: "final-release-version"
 run:
-  path: "repo/ci/scripts/final-release.sh"
+  path: "repo/ci/tasks/repo-undeploy/run.sh"
